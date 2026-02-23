@@ -1,0 +1,98 @@
+// Prisma schema for Code Editor with Questions
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String   @unique
+  password  String   // hashed with bcrypt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  submissions Submission[]
+}
+
+model Question {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  difficulty  Difficulty
+  language    Language
+  category    String
+  tags        String[]
+  
+  // Template code for the question
+  starterCode String   @db.Text
+  solution    String?  @db.Text
+  
+  // Test cases
+  testCases   TestCase[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  submissions Submission[]
+}
+
+model TestCase {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  input      String   @db.Text
+  output     String   @db.Text
+  isHidden   Boolean  @default(false)
+  
+  createdAt  DateTime @default(now())
+}
+
+model Submission {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  code       String   @db.Text
+  language   Language
+  status     SubmissionStatus
+  
+  executionTime Int?
+  memoryUsage   Int?
+  
+  output     String?  @db.Text
+  error      String?  @db.Text
+  
+  createdAt  DateTime @default(now())
+}
+
+enum Language {
+  JAVA
+  PYTHON
+  JAVASCRIPT
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SubmissionStatus {
+  PENDING
+  RUNNING
+  ACCEPTED
+  WRONG_ANSWER
+  COMPILATION_ERROR
+  RUNTIME_ERROR
+  TIME_LIMIT_EXCEEDED
+}

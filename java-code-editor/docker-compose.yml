@@ -5,10 +5,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+        - NEXT_PUBLIC_GRAPHQL_URL=http://localhost:3001/graphql
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
     depends_on:
       - backend
     networks:
@@ -27,11 +28,16 @@ services:
       - EXECUTION_TIMEOUT=5000
       - MAX_MEMORY_MB=256
       - FRONTEND_URL=http://localhost:3000
+      - DATABASE_URL=postgresql://postgres:password@host.docker.internal:5432/codeeditor?schema=public
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - JWT_EXPIRES_IN=7d
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     privileged: true
     networks:
       - app-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   app-network:

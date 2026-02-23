@@ -29,9 +29,14 @@ interface ExecutionResult {
   timestamp: string;
 }
 
-export default function CodeEditor() {
+interface CodeEditorProps {
+  initialCode?: string;
+  language?: string;
+}
+
+export default function CodeEditor({ initialCode, language = 'java' }: CodeEditorProps = {}) {
   const { theme, toggleTheme } = useTheme();
-  const [code, setCode] = useState(JAVA_TEMPLATES['Hello World'].code);
+  const [code, setCode] = useState(initialCode || JAVA_TEMPLATES['Hello World'].code);
   const [pom, setPom] = useState(JAVA_TEMPLATES['Hello World'].pom || '');
   const [projectType, setProjectType] = useState<ProjectType>('standard');
   const [input, setInput] = useState('');

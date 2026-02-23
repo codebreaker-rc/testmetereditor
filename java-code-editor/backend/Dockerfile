@@ -10,17 +10,23 @@ RUN npm install
 
 COPY . .
 
+RUN npx prisma generate
+
 RUN npm run build
 
 FROM node:18-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache docker-cli openjdk17
+RUN apk add --no-cache docker-cli openjdk17 openssl
 
 COPY package*.json ./
 
 RUN npm install --production
+
+COPY prisma ./prisma
+
+RUN npx prisma generate
 
 COPY --from=builder /app/dist ./dist
 
